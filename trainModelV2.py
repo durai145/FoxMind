@@ -15,10 +15,15 @@ dataset = Dataset.from_dict({
 })
 
 # Load pre-trained model and tokenizer
+'''
 model_name = "bert-base-uncased"  # Use BERT for question answering
 model = AutoModelForQuestionAnswering.from_pretrained(model_name)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
-
+'''
+model_name = "deepseek-ai/deepseek-llm-7b-base"  # Use BERT for question answering
+model = AutoModelForQuestionAnswering.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+#384
 # Preprocess the dataset
 def preprocess_function(examples):
     questions = [q.strip() for q in examples["question"]]

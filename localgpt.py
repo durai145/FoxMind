@@ -19,13 +19,6 @@ model_name = "valhalla/t5-small-qg-hl"  # Pre-trained model for question generat
 t5_model = T5ForConditionalGeneration.from_pretrained(model_name)
 t5_tokenizer = T5Tokenizer.from_pretrained(model_name)
 
-# Load the trained QA model and tokenizer
-qa_model_path = "./qa-model"  # Path where your QA model is saved
-qa_model = AutoModelForQuestionAnswering.from_pretrained(qa_model_path)
-qa_tokenizer = AutoTokenizer.from_pretrained(qa_model_path)
-
-# Create a question-answering pipeline
-qa_pipeline = pipeline("question-answering", model=qa_model, tokenizer=qa_tokenizer)
 
 # Load Sentence Transformer for context retrieval
 sentence_model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -71,7 +64,7 @@ def generate_when_where_questions(paragraph):
             questions.append(f"When {sentence}?")
     return questions
 
-def create_dataset(paragraph, num_questions=10):
+def create_dataset(paragraph, num_questions=5):
     """Create a dataset by generating questions and appending to the existing dataset."""
     # Load the existing dataset
     dataset = load_dataset()
@@ -179,6 +172,9 @@ def train_model():
     trainer.train()
 
     # Save the model
+    
+
+
     model.save_pretrained("./qa-model")
     tokenizer.save_pretrained("./qa-model")
 
@@ -205,6 +201,15 @@ def generate_dataset():
 
 @app.route('/ask', methods=['POST'])
 def ask():
+    
+    # Load the trained QA model and tokenizer
+    qa_model_path = "./qa-model"  # Path where your QA model is saved
+    qa_model = AutoModelForQuestionAnswering.from_pretrained(qa_model_path)
+    qa_tokenizer = AutoTokenizer.from_pretrained(qa_model_path)
+    
+    # Create a question-answering pipeline
+    qa_pipeline = pipeline("question-answering", model=qa_model, tokenizer=qa_tokenizer)
+
     """Endpoint to answer questions using the QA model."""
     # Get the question from the API request
     data = request.get_json()
@@ -238,7 +243,11 @@ def ask():
 
     # Perform question-answering using the context
     try:
+    
         result = qa_pipeline(question=question, context=context)
+        print(f"question={question}")    
+        print(f"answer={result}")    
+        print(f"context={context}")    
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
